@@ -1,8 +1,7 @@
 // @ts-nocheck
 import React,{useEffect, useState} from 'react'
-import { saveAs } from 'file-saver';
-// htmlDocx 的作用就是将html字符串转成Blob对象
-import htmlDocx from 'html-docx-js/dist/html-docx';
+import HTMLtoDOCX from "html-to-docx";
+import { saveAs } from "file-saver";
 const Home = () =>{
     const [videoUrl,setVideoUrl] = useState('')
     let mediaRecorder = null;let chunks = []
@@ -90,10 +89,33 @@ const Home = () =>{
         window.electron.ipcRenderer.send("gethtml", '');
       };
 
-      const handleDown =() =>{
+      function getModelHtml(mhtml, style = '') {
+        return `
+              Content-Type: text/html; charset="utf-8"
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <style>
+                  p{
+                    color:red
+                  }
+                </style>
+                </head>
+                <body>
+                  ${mhtml}
+                </body>
+                </html>
+              `
+    }
+
+      const handleDown =async() =>{
         let contentDiv = document.getElementById('mycontent')
         const htmlContent = contentDiv.innerHTML;
-        window.electron.ipcRenderer.send('exportToWord', htmlContent||'<p>99</p>');
+        // window.electron.ipcRenderer.send('exportToWord', htmlContent||'<p>99</p>');
+        let html = getModelHtml(htmlContent)
+        let blob = new Blob([html], { type: 'application/msword;charset=utf-8' })
+        saveAs(blob, 'tet' + '.docx')
+      //  saveAs(data, "hello.docx");
       }
 
       

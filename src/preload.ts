@@ -5,7 +5,9 @@
 const { ipcRenderer, contextBridge, remote, shell } = require("electron");
 const https = require("https");
 const cheerio = require("cheerio");
-const htmlToDocx = require("html-docx-js/dist/html-docx");
+const path = require('path')
+// const htmlToDocx = require("html-docx-js/dist/html-docx");
+
 const fs = require("fs");
 // const fs = remote.require('fs');
 ipcRenderer.on("stopVideo", async (event, value) => {
@@ -75,6 +77,7 @@ function insertDiv(html) {
   arr.each((index, item) => {
     menuList.push(item.children[0].attribs);
   });
+  console.log(menuList,'menuList')
   $("#lemmaContent span").each(function (index, element) {
     // 检查是否有data-value属性
     let style = $(this).attr("style");
@@ -92,12 +95,7 @@ function insertDiv(html) {
   document.getElementById("mycontent").appendChild(div);
 }
 
-ipcRenderer.on("exportToWord", async (event, value) => {
-  console.log(value)
-  // const docx = htmlToDocx(htmlContent);
-  // console.log(docx)
 
-})
 
 
 contextBridge.exposeInMainWorld("electron", {

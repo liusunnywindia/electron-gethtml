@@ -6,10 +6,11 @@ const { ipcRenderer, contextBridge, remote, shell } = require("electron");
 const https = require("https");
 const cheerio = require("cheerio");
 const path = require('path')
+const host= 'https://www.soujianzhu.cn/NormAndRules/'
 // const htmlToDocx = require("html-docx-js/dist/html-docx");
 
 const fs = require("fs");
-// const fs = remote.require('fs');
+let menuList = [];currentIndex =0
 ipcRenderer.on("stopVideo", async (event, value) => {
   let blobNew = dataURLtoBlob(value);
   const blob = new Blob([blobNew], { type: "video/webm" });
@@ -45,38 +46,33 @@ function dataURLtoBlob(dataURL) {
   return new Blob([uInt8Array], { type: contentType });
 }
 
-ipcRenderer.on("gethtml", async (event, value) => {
-  let url =
-    value ||
-    "https://www.soujianzhu.cn/NormAndRules/gfnr.aspx?id=2295&conid=61127";
-  let html = "";
-  https.get(url, function (res) {
-    res.on("data", function (chunk) {
-      html += chunk;
-    });
-    res.on("end", function () {
-      // console.log(html,'html')
-      insertDiv(html);
-    });
-  });
-});
+// ipcRenderer.on("gethtml", async (event, value) => {
+//   let url =
+//     value ||
+//     "https://www.soujianzhu.cn/NormAndRules/gfnr.aspx?id=2295&conid=61127";
+//   let html = "";
+//   https.get(url, function (res) {
+//     res.on("data", function (chunk) {
+//       html += chunk;
+//     });
+//     res.on("end", function () {
+//       // console.log(html,'html')
+//       var $ = cheerio.load(html);
+//       var contentAll = $("#lemmaContent");
+//       let categrory = $("#mldl");
+//       let arr = categrory.children();
+//       arr.each((index, item) => {
+//         menuList.push(item.children[0].attribs);
+//       });
+//       if(menuList.length>0){
+//         getAllhtml()
+//       }
+//     });
+//   });
+// });
 
 function insertDiv(html) {
-  // var dom = cheerio.load(html);
-  // console.log(dom,'dom')
-  // var a = dom("#lemmaContent");
-  // var div = document.createElement("div");
-  // div.innerHTML = a.html(); //将字符串转为div
-  // console.log(div,'div')
-  // document.getElementById("mycontent").appendChild(div);
-  let menuList = [];
   var $ = cheerio.load(html);
-  var contentAll = $("#lemmaContent");
-  let categrory = $("#mldl");
-  let arr = categrory.children();
-  arr.each((index, item) => {
-    menuList.push(item.children[0].attribs);
-  });
   console.log(menuList,'menuList')
   $("#lemmaContent span").each(function (index, element) {
     // 检查是否有data-value属性
@@ -91,10 +87,37 @@ function insertDiv(html) {
   });
   var div = document.createElement("div");
   div.innerHTML = $("#lemmaContent").html(); //将字符串转为div
-  console.log(div, "div");
   document.getElementById("mycontent").appendChild(div);
 }
 
+const getAllhtml = () =>{
+  const interval = setInterval(() => {
+    // 获取当前元素
+    const currentItem = menuList[currentIndex];
+    let requestUrl =`${host}${currentItem.href}`
+    // 发送请求（这里使用 fetch 作为示例）
+    let currentHtml = ''
+    https.get(requestUrl, function (res) {
+      res.on("data", function (chunk) {
+        currentHtml += chunk;
+      });
+      res.on("end", function () {
+        console.log(currentHtml,'currentHtml')
+        insertDiv(currentHtml);
+      });
+    });
+  
+    // 移动到下一个元素
+    currentIndex++;
+  
+    // 如果已经遍历完数组，清除定时器
+    if (currentIndex === menuList.length) {
+      clearInterval(interval);
+      console.log('Array traversal complete');
+      ipcRenderer.send("downloadShow", true);
+    }
+  }, 1000);
+}
 
 
 

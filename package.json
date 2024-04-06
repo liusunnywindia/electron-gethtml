@@ -1,6 +1,6 @@
 {
-  "name": "my-react-two",
-  "productName": "my-react-two",
+  "name": "get-html-tools",
+  "productName": "获取文档小工具",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",

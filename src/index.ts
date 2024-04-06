@@ -76,7 +76,6 @@ const createWindow = (): void => {
   });
 
   ipcMain.on("gethtml", (event, message) => {
-    console.log(message, "mess");
     let url =
       message ||
       "https://www.soujianzhu.cn/NormAndRules/gfnr.aspx?id=2295&conid=61127";
@@ -144,7 +143,6 @@ const createWindow = (): void => {
       // 如果已经遍历完数组，清除定时器
       if (currentIndex === menuList.length) {
         clearInterval(interval);
-        console.log("Array traversal complete");
         event.sender.send("replyFromMain", true);
       }
     }, 1000);
